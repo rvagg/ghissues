@@ -1,6 +1,6 @@
 {
   "name": "ghissues",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Interact with the GitHub issues API",
   "main": "ghissues.js",
   "scripts": {
