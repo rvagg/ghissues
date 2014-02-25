@@ -35,7 +35,7 @@ ghissues.create(authOptions, 'rvagg', 'jsonist', data, function (err, issue) {
 })
 
 // list all comments in an issue
-ghissues.list(authOptions, 'rvagg', 'jsonist', 47, function (err, commentlist) {
+ghissues.listComments(authOptions, 'rvagg', 'jsonist', 47, function (err, commentlist) {
   // Array of comment data for 'rvagg/jsonist#47'
   console.log(commentlist)
 })
