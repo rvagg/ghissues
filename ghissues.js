@@ -65,7 +65,7 @@ module.exports.list = function list (auth, org, repo, options, callback) {
 
       next(page + 1)
     })
-  }(0))
+  }(1))
 }
 
 
