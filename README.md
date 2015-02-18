@@ -19,9 +19,9 @@ ghissues.list(authOptions, 'rvagg', 'jsonist', function (err, issuelist) {
 })
 
 // get issue data by number (not internal GitHub id)
-ghissues.get(authOptions, 'rvagg', 'nan', 123, function (err, team) {
+ghissues.get(authOptions, 'rvagg', 'nan', 123, function (err, issue) {
   // object containing full issue #123
-  console.log(team)
+  console.log(issue)
 })
 
 // create an issue
@@ -55,7 +55,7 @@ The auth data is compatible with [ghauth](https://github.com/rvagg/ghauth) so yo
 const ghauth      = require('ghauth')
     , ghissues    = require('ghissues')
     , authOptions = {
-          configName : 'team-lister'
+          configName : 'issue-lister'
         , scopes     : [ 'user' ]
       }
 
