@@ -21,14 +21,14 @@
   },
   "homepage": "https://github.com/rvagg/ghissues",
   "dependencies": {
-    "jsonist": "~1.0.0",
+    "jsonist": "~1.0.1",
     "xtend": "~4.0.0"
   },
   "devDependencies": {
     "bl": "~0.9.4",
     "faucet": "0.0.1",
-    "hyperquest": "~1.0.1",
+    "hyperquest": "~1.2.0",
     "require-subvert": "~0.1.0",
-    "tape": "~3.5.0"
+    "tape": "~4.0.0"
   }
 }
