@@ -1,72 +1,12 @@
-const jsonist = require('jsonist')
-    , qs      = require('querystring')
-    , xtend   = require('xtend')
+const ghutil = require('ghutils')
 
 
-function makeOptions (auth, options) {
-  return xtend({
-      headers : { 'User-Agent' : 'Magic Node.js application that does magic things' }
-    , auth    : auth.user + ':' + auth.token
-  }, options)
-}
+const ghget  = ghutil.ghget
+    , ghpost = ghutil.ghpost
+    , ghlist = ghutil.issuesList
 
 
-function handler (callback) {
-  return function responseHandler (err, data) {
-    if (err)
-      return callback(err)
-
-    if (data.error || data.message)
-      return callback(new Error('Error from GitHub: ' + (data.error || data.message)))
-
-    callback(null, data)
-  }
-}
-
-
-function ghget (auth, url, options, callback) {
-  options = makeOptions(auth, options)
-
-  jsonist.get(url, options, handler(callback))
-}
-
-
-function ghpost (auth, url, data, options, callback) {
-  options = makeOptions(auth, options)
-
-  jsonist.post(url, data, options, handler(callback))
-}
-
-
-module.exports.list = function list (auth, org, repo, options, callback) {
-  if (typeof options == 'function') {
-    callback = options
-    options  = {}
-  }
-
-  var issues = []
-    , optqs  = qs.stringify(options)
-
-  if (optqs)
-    optqs = '&' + optqs
-
-  //TODO: use 'Link' headers to improve the guesswork here
-  ;(function next (page) {
-    var url = 'https://api.github.com/repos/' + org + '/' + repo + '/issues?page=' + page + optqs
-
-    ghget(auth, url, options, function (err, data) {
-      if (err)
-        return callback(err)
-
-      if (!data.length)
-        return callback(null, issues)
-
-      issues.push.apply(issues, data)
-
-      next(page + 1)
-    })
-  }(0))
-}
+module.exports.list = ghlist('issues')
 
 
 module.exports.get = function get (auth, org, repo, num, options, callback) {
@@ -116,7 +56,7 @@ module.exports.listComments = function listComments (auth, org, repo, num, optio
 
       next(page + 1)
     })
-  }(0))
+  }(1))
 }
 
 
@@ -130,4 +70,3 @@ module.exports.createComment = function createComment (auth, org, repo, num, bod
 
   ghpost(auth, url, { body: body }, options, callback)
 }
-

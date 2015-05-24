@@ -100,8 +100,8 @@ test('test list issues', function (t) {
     })
     .on('request', verifyRequest(t, auth))
     .on('get', verifyUrl(t, [
-        'https://api.github.com/repos/testorg/testrepo/issues?page=0'
-      , 'https://api.github.com/repos/testorg/testrepo/issues?page=1'
+        'https://api.github.com/repos/testorg/testrepo/issues?page=1'
+      , 'https://api.github.com/repos/testorg/testrepo/issues?page=2'
     ]))
     .on('close'  , verifyClose(t))
 })
@@ -122,9 +122,9 @@ test('test list multi-page issues', function (t) {
     })
     .on('request', verifyRequest(t, auth))
     .on('get', verifyUrl(t, [
-        'https://api.github.com/repos/testorg/testrepo/issues?page=0'
-      , 'https://api.github.com/repos/testorg/testrepo/issues?page=1'
+        'https://api.github.com/repos/testorg/testrepo/issues?page=1'
       , 'https://api.github.com/repos/testorg/testrepo/issues?page=2'
+      , 'https://api.github.com/repos/testorg/testrepo/issues?page=3'
     ]))
     .on('close'  , verifyClose(t))
 })
@@ -145,7 +145,7 @@ test('test list no issues', function (t) {
     })
     .on('request', verifyRequest(t, auth))
     .on('get', verifyUrl(t, [
-        'https://api.github.com/repos/testorg/testrepo/issues?page=0'
+        'https://api.github.com/repos/testorg/testrepo/issues?page=1'
     ]))
     .on('close'  , verifyClose(t))
 })
@@ -218,8 +218,8 @@ test('test list issue comments', function (t) {
     })
     .on('request', verifyRequest(t, auth))
     .on('get', verifyUrl(t, [
-        'https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=0'
-      , 'https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=1'
+        'https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=1'
+      , 'https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=2'
     ]))
     .on('close'  , verifyClose(t))
 })
@@ -241,9 +241,9 @@ test('test list multi-page issue comments', function (t) {
     })
     .on('request', verifyRequest(t, auth))
     .on('get', verifyUrl(t, [
-        'https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=0'
-      , 'https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=1'
+        'https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=1'
       , 'https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=2'
+      , 'https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=3'
     ]))
     .on('close'  , verifyClose(t))
 })
@@ -265,7 +265,7 @@ test('test list no issue comments', function (t) {
     })
     .on('request', verifyRequest(t, auth))
     .on('get', verifyUrl(t, [
-        'https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=0'
+        'https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=1'
     ]))
     .on('close'  , verifyClose(t))
 })
