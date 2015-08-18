@@ -1,5 +1,5 @@
 const http           = require('http')
-    , ghutils        = require('ghutils/test')
+    , ghutils        = require('ghutils/test-util')
     , test           = require('tape')
     , xtend          = require('xtend')
     , bl             = require('bl')
@@ -12,12 +12,18 @@ test('test list issues', function (t) {
   var auth     = { user: 'authuser', token: 'authtoken' }
     , org      = 'testorg'
     , repo     = 'testrepo'
-    , testData = [ [ { test1: 'data1' }, { test2: 'data2' } ], [] ]
+    , testData = [
+          {
+              response : [ { test1: 'data1' }, { test2: 'data2' } ]
+            , headers  : { link: '<https://api.github.com/repos/testorg/testrepo/issues?page=2>; rel="next"' }
+          }
+        , { response: [] }
+      ]
     , server
 
   server = ghutils.makeServer(testData)
     .on('ready', function () {
-      ghissues.list(xtend(auth), org, repo, ghutils.verifyData(t, testData[0]))
+      ghissues.list(xtend(auth), org, repo, ghutils.verifyData(t, testData[0].response))
     })
     .on('request', ghutils.verifyRequest(t, auth))
     .on('get', ghutils.verifyUrl(t, [
@@ -34,12 +40,22 @@ test('test list multi-page issues', function (t) {
   var auth     = { user: 'authuser', token: 'authtoken' }
     , org      = 'testorg'
     , repo     = 'testrepo'
-    , testData = [ [ { test1: 'data1' }, { test2: 'data2' } ], [ { test3: 'data3' }, { test4: 'data4' } ], [] ]
+    , testData = [
+          {
+              response : [ { test1: 'data1' }, { test2: 'data2' } ]
+            , headers  : { link: '<https://api.github.com/repos/testorg/testrepo/issues?page=2>; rel="next"' }
+          }
+        , {
+              response : [ { test1: 'data3' }, { test2: 'data4' } ]
+            , headers  : { link: '<https://api.github.com/repos/testorg/testrepo/issues?page=3>; rel="next"' }
+          }
+        , { response: [] }
+      ]
     , server
 
   server = ghutils.makeServer(testData)
     .on('ready', function () {
-      ghissues.list(xtend(auth), org, repo, ghutils.verifyData(t, testData[0].concat(testData[1])))
+      ghissues.list(xtend(auth), org, repo, ghutils.verifyData(t, testData[0].response.concat(testData[1].response)))
     })
     .on('request', ghutils.verifyRequest(t, auth))
     .on('get', ghutils.verifyUrl(t, [
@@ -130,11 +146,18 @@ test('test list issue comments', function (t) {
     , repo     = 'testrepo'
     , num      = 48
     , testData = [ [ { test1: 'data1' }, { test2: 'data2' } ], [] ]
+    , testData = [
+          {
+              response : [ { test1: 'data1' }, { test2: 'data2' } ]
+            , headers  : { link: '<https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=2>; rel="next"' }
+          }
+        , { response: [] }
+      ]
     , server
 
   server = ghutils.makeServer(testData)
     .on('ready', function () {
-      ghissues.listComments(xtend(auth), org, repo, num, ghutils.verifyData(t, testData[0]))
+      ghissues.listComments(xtend(auth), org, repo, num, ghutils.verifyData(t, testData[0].response))
     })
     .on('request', ghutils.verifyRequest(t, auth))
     .on('get', ghutils.verifyUrl(t, [
@@ -152,12 +175,22 @@ test('test list multi-page issue comments', function (t) {
     , org      = 'testorg'
     , repo     = 'testrepo'
     , num      = 202
-    , testData = [ [ { test1: 'data1' }, { test2: 'data2' } ], [ { test3: 'data3' }, { test4: 'data4' } ], [] ]
+    , testData = [
+          {
+              response : [ { test1: 'data1' }, { test2: 'data2' } ]
+            , headers  : { link: '<https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=2>; rel="next"' }
+          }
+        , {
+              response : [ { test1: 'data3' }, { test2: 'data4' } ]
+            , headers  : { link: '<https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=3>; rel="next"' }
+          }
+        , { response: [] }
+      ]
     , server
 
   server = ghutils.makeServer(testData)
     .on('ready', function () {
-      ghissues.listComments(xtend(auth), org, repo, num, ghutils.verifyData(t, testData[0].concat(testData[1])))
+      ghissues.listComments(xtend(auth), org, repo, num, ghutils.verifyData(t, testData[0].response.concat(testData[1].response)))
     })
     .on('request', ghutils.verifyRequest(t, auth))
     .on('get', ghutils.verifyUrl(t, [
