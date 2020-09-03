@@ -21,12 +21,12 @@
   },
   "homepage": "https://github.com/rvagg/ghissues",
   "dependencies": {
-    "ghutils": "~3.2.0"
+    "ghutils": "^4.0.0"
   },
   "devDependencies": {
-    "bl": "~1.0.0",
-    "faucet": "~0.0.1",
-    "tape": "~4.2.0",
-    "xtend": "~4.0.0"
+    "bl": "^1.2.3",
+    "faucet": "0.0.1",
+    "tape": "^5.0.1",
+    "xtend": "^4.0.2"
   }
 }
