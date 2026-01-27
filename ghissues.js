@@ -1,58 +1,36 @@
-const ghutils = require('ghutils')
+import { ghget, ghpost, lister } from 'ghutils'
 
+const defaultApiUrl = 'https://api.github.com'
 
-module.exports.list = function list (auth, org, repo, options, callback) {
-  if (typeof options == 'function') {
-    callback = options
-    options  = {}
-  }
-
-  var url = 'https://api.github.com/repos/' + org + '/' + repo + '/issues?page=1'
-  ghutils.lister(auth, url, options, callback)
+export async function list (auth, org, repo, options = {}) {
+  const apiUrl = options._apiUrl || defaultApiUrl
+  const url = `${apiUrl}/repos/${org}/${repo}/issues`
+  return lister(auth, url, options)
 }
 
-module.exports.get = function get (auth, org, repo, num, options, callback) {
-  if (typeof options == 'function') {
-    callback = options
-    options  = {}
-  }
-
-  var url = 'https://api.github.com/repos/' + org + '/' + repo + '/issues/' + num
-
-  ghutils.ghget(auth, url, options, callback)
+export async function get (auth, org, repo, num, options = {}) {
+  const apiUrl = options._apiUrl || defaultApiUrl
+  const url = `${apiUrl}/repos/${org}/${repo}/issues/${num}`
+  const { data } = await ghget(auth, url, options)
+  return data
 }
 
-
-module.exports.create = function create (auth, org, repo, data, options, callback) {
-  if (typeof options == 'function') {
-    callback = options
-    options  = {}
-  }
-
-  var url = 'https://api.github.com/repos/' + org + '/' + repo + '/issues'
-
-  ghutils.ghpost(auth, url, data, options, callback)
+export async function create (auth, org, repo, data, options = {}) {
+  const apiUrl = options._apiUrl || defaultApiUrl
+  const url = `${apiUrl}/repos/${org}/${repo}/issues`
+  const { data: result } = await ghpost(auth, url, data, options)
+  return result
 }
 
-
-module.exports.listComments = function listComments (auth, org, repo, num, options, callback) {
-  if (typeof options == 'function') {
-    callback = options
-    options  = {}
-  }
-
-  var url = 'https://api.github.com/repos/' + org + '/' + repo + '/issues/' + num + '/comments?page=1'
-  ghutils.lister(auth, url, options, callback)
+export async function listComments (auth, org, repo, num, options = {}) {
+  const apiUrl = options._apiUrl || defaultApiUrl
+  const url = `${apiUrl}/repos/${org}/${repo}/issues/${num}/comments`
+  return lister(auth, url, options)
 }
 
-
-module.exports.createComment = function createComment (auth, org, repo, num, body, options, callback) {
-  if (typeof options == 'function') {
-    callback = options
-    options  = {}
-  }
-
-  var url = 'https://api.github.com/repos/' + org + '/' + repo + '/issues/' + num + '/comments'
-
-  ghutils.ghpost(auth, url, { body: body }, options, callback)
+export async function createComment (auth, org, repo, num, body, options = {}) {
+  const apiUrl = options._apiUrl || defaultApiUrl
+  const url = `${apiUrl}/repos/${org}/${repo}/issues/${num}/comments`
+  const { data } = await ghpost(auth, url, { body }, options)
+  return data
 }
