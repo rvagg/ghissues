@@ -1,253 +1,150 @@
-const http           = require('http')
-    , ghutils        = require('ghutils/test-util')
-    , test           = require('tape')
-    , xtend          = require('xtend')
-    , bl             = require('bl')
-    , ghissues       = require('./')
+import { test } from 'node:test'
+import assert from 'node:assert'
+import { createMockServer, createMockServerWithHandler } from 'ghutils/test-util'
+import * as ghissues from './ghissues.js'
 
+test('list issues', async () => {
+  const auth = { token: 'test-token' }
+  const testData = [{ id: 1, title: 'Issue 1' }, { id: 2, title: 'Issue 2' }]
 
-test('test list issues', function (t) {
-  t.plan(10)
-
-  var auth     = { user: 'authuser', token: 'authtoken' }
-    , org      = 'testorg'
-    , repo     = 'testrepo'
-    , testData = [
-          {
-              response : [ { test1: 'data1' }, { test2: 'data2' } ]
-            , headers  : { link: '<https://api.github.com/repos/testorg/testrepo/issues?page=2>; rel="next"' }
-          }
-        , { response: [] }
-      ]
-    , server
-
-  server = ghutils.makeServer(testData)
-    .on('ready', function () {
-      ghissues.list(xtend(auth), org, repo, ghutils.verifyData(t, testData[0].response))
+  const server = await createMockServer({ response: testData })
+  try {
+    const results = await ghissues.list(auth, 'testorg', 'testrepo', {
+      _apiUrl: server.baseUrl
     })
-    .on('request', ghutils.verifyRequest(t, auth))
-    .on('get', ghutils.verifyUrl(t, [
-        'https://api.github.com/repos/testorg/testrepo/issues?page=1'
-      , 'https://api.github.com/repos/testorg/testrepo/issues?page=2'
-    ]))
-    .on('close'  , ghutils.verifyClose(t))
+    assert.deepStrictEqual(results, testData)
+    assert.strictEqual(server.requests.length, 1)
+    assert.ok(server.requests[0].url.includes('/repos/testorg/testrepo/issues'))
+    assert.strictEqual(server.requests[0].headers.authorization, 'Bearer test-token')
+  } finally {
+    await server.close()
+  }
 })
 
+test('list issues with pagination', async () => {
+  const auth = { token: 'test-token' }
+  const page1 = [{ id: 1 }, { id: 2 }]
+  const page2 = [{ id: 3 }, { id: 4 }]
 
-test('test list multi-page issues', function (t) {
-  t.plan(13)
+  let requestCount = 0
+  const mock = await createMockServerWithHandler((req, res) => {
+    requestCount++
+    const port = mock.address().port
+    if (requestCount === 1) {
+      res.setHeader('link', `<http://127.0.0.1:${port}/page2>; rel="next"`)
+      res.end(JSON.stringify(page1))
+    } else {
+      res.end(JSON.stringify(page2))
+    }
+  })
 
-  var auth     = { user: 'authuser', token: 'authtoken' }
-    , org      = 'testorg'
-    , repo     = 'testrepo'
-    , testData = [
-          {
-              response : [ { test1: 'data1' }, { test2: 'data2' } ]
-            , headers  : { link: '<https://api.github.com/repos/testorg/testrepo/issues?page=2>; rel="next"' }
-          }
-        , {
-              response : [ { test1: 'data3' }, { test2: 'data4' } ]
-            , headers  : { link: '<https://api.github.com/repos/testorg/testrepo/issues?page=3>; rel="next"' }
-          }
-        , { response: [] }
-      ]
-    , server
-
-  server = ghutils.makeServer(testData)
-    .on('ready', function () {
-      ghissues.list(xtend(auth), org, repo, ghutils.verifyData(t, testData[0].response.concat(testData[1].response)))
+  try {
+    const results = await ghissues.list(auth, 'testorg', 'testrepo', {
+      _apiUrl: mock.baseUrl
     })
-    .on('request', ghutils.verifyRequest(t, auth))
-    .on('get', ghutils.verifyUrl(t, [
-        'https://api.github.com/repos/testorg/testrepo/issues?page=1'
-      , 'https://api.github.com/repos/testorg/testrepo/issues?page=2'
-      , 'https://api.github.com/repos/testorg/testrepo/issues?page=3'
-    ]))
-    .on('close'  , ghutils.verifyClose(t))
+    assert.deepStrictEqual(results, [...page1, ...page2])
+    assert.strictEqual(requestCount, 2)
+  } finally {
+    await mock.close()
+  }
 })
 
+test('get issue by number', async () => {
+  const auth = { token: 'test-token' }
+  const testData = { id: 101, title: 'Test Issue', body: 'Issue body' }
 
-test('test list no issues', function (t) {
-  t.plan(7)
-
-  var auth     = { user: 'authuser', token: 'authtoken' }
-    , org      = 'testorg'
-    , repo     = 'testrepo'
-    , testData = [ [] ]
-    , server
-
-  server = ghutils.makeServer(testData)
-    .on('ready', function () {
-      ghissues.list(xtend(auth), org, repo, ghutils.verifyData(t, []))
+  const server = await createMockServer({ response: testData })
+  try {
+    const result = await ghissues.get(auth, 'testorg', 'testrepo', 101, {
+      _apiUrl: server.baseUrl
     })
-    .on('request', ghutils.verifyRequest(t, auth))
-    .on('get', ghutils.verifyUrl(t, [
-        'https://api.github.com/repos/testorg/testrepo/issues?page=1'
-    ]))
-    .on('close'  , ghutils.verifyClose(t))
+    assert.deepStrictEqual(result, testData)
+    assert.ok(server.requests[0].url.includes('/repos/testorg/testrepo/issues/101'))
+  } finally {
+    await server.close()
+  }
 })
 
+test('create issue', async () => {
+  const auth = { token: 'test-token' }
+  const issueData = { title: 'New Issue', body: 'Issue description' }
+  const responseData = { id: 123, ...issueData }
 
-test('test get issue by id', function (t) {
-  t.plan(7)
-
-  var auth     = { user: 'authuser', token: 'authtoken' }
-    , org      = 'testorg'
-    , repo     = 'testrepo'
-    , num      = 101
-    , testData = { id: num, issue: 'body' }
-    , server
-
-  server = ghutils.makeServer(testData)
-    .on('ready', function () {
-      ghissues.get(xtend(auth), org, repo, num, ghutils.verifyData(t, testData))
+  const server = await createMockServer({ response: responseData })
+  try {
+    const result = await ghissues.create(auth, 'testorg', 'testrepo', issueData, {
+      _apiUrl: server.baseUrl
     })
-    .on('request', ghutils.verifyRequest(t, auth))
-    .on('get', ghutils.verifyUrl(t, [
-        'https://api.github.com/repos/testorg/testrepo/issues/' + num
-    ]))
-    .on('close'  , ghutils.verifyClose(t))
+    assert.deepStrictEqual(result, responseData)
+    assert.strictEqual(server.requests[0].method, 'POST')
+    assert.deepStrictEqual(server.requests[0].body, issueData)
+    assert.ok(server.requests[0].url.includes('/repos/testorg/testrepo/issues'))
+  } finally {
+    await server.close()
+  }
 })
 
+test('list issue comments', async () => {
+  const auth = { token: 'test-token' }
+  const comments = [{ id: 1, body: 'Comment 1' }, { id: 2, body: 'Comment 2' }]
 
-test('test create new issue', function (t) {
-  t.plan(9)
-
-  var auth     = { user: 'authuser', token: 'authtoken' }
-    , org      = 'testorg'
-    , repo     = 'testrepo'
-    , testData = { title: 'issue title', body: 'issue body' }
-    , resp     = 'derp'
-    , server
-
-  server = ghutils.makeServer(resp)
-    .on('ready', function () {
-      ghissues.create(xtend(auth), org, repo, testData, ghutils.verifyData(t, resp))
+  const server = await createMockServer({ response: comments })
+  try {
+    const results = await ghissues.listComments(auth, 'testorg', 'testrepo', 42, {
+      _apiUrl: server.baseUrl
     })
-    .on('request', ghutils.verifyRequest(t, auth))
-    .on('request', function (req) {
-      req.pipe(bl(function (err, data) {
-        t.notOk(err, 'no error')
-        t.deepEqual(JSON.parse(data.toString()), testData, 'got expected post data')
-      }))
-    })
-    .on('post', ghutils.verifyUrl(t, [
-        'https://api.github.com/repos/testorg/testrepo/issues'
-    ]))
-    .on('close'  , ghutils.verifyClose(t))
+    assert.deepStrictEqual(results, comments)
+    assert.ok(server.requests[0].url.includes('/repos/testorg/testrepo/issues/42/comments'))
+  } finally {
+    await server.close()
+  }
 })
 
+test('create comment', async () => {
+  const auth = { token: 'test-token' }
+  const commentBody = 'This is a comment'
+  const responseData = { id: 456, body: commentBody }
 
-test('test list issue comments', function (t) {
-  t.plan(10)
-
-  var auth     = { user: 'authuser', token: 'authtoken' }
-    , org      = 'testorg'
-    , repo     = 'testrepo'
-    , num      = 48
-    , testData = [ [ { test1: 'data1' }, { test2: 'data2' } ], [] ]
-    , testData = [
-          {
-              response : [ { test1: 'data1' }, { test2: 'data2' } ]
-            , headers  : { link: '<https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=2>; rel="next"' }
-          }
-        , { response: [] }
-      ]
-    , server
-
-  server = ghutils.makeServer(testData)
-    .on('ready', function () {
-      ghissues.listComments(xtend(auth), org, repo, num, ghutils.verifyData(t, testData[0].response))
+  const server = await createMockServer({ response: responseData })
+  try {
+    const result = await ghissues.createComment(auth, 'testorg', 'testrepo', 42, commentBody, {
+      _apiUrl: server.baseUrl
     })
-    .on('request', ghutils.verifyRequest(t, auth))
-    .on('get', ghutils.verifyUrl(t, [
-        'https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=1'
-      , 'https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=2'
-    ]))
-    .on('close'  , ghutils.verifyClose(t))
+    assert.deepStrictEqual(result, responseData)
+    assert.strictEqual(server.requests[0].method, 'POST')
+    assert.deepStrictEqual(server.requests[0].body, { body: commentBody })
+    assert.ok(server.requests[0].url.includes('/repos/testorg/testrepo/issues/42/comments'))
+  } finally {
+    await server.close()
+  }
 })
 
+test('list issues returns empty array', async () => {
+  const auth = { token: 'test-token' }
 
-test('test list multi-page issue comments', function (t) {
-  t.plan(13)
-
-  var auth     = { user: 'authuser', token: 'authtoken' }
-    , org      = 'testorg'
-    , repo     = 'testrepo'
-    , num      = 202
-    , testData = [
-          {
-              response : [ { test1: 'data1' }, { test2: 'data2' } ]
-            , headers  : { link: '<https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=2>; rel="next"' }
-          }
-        , {
-              response : [ { test1: 'data3' }, { test2: 'data4' } ]
-            , headers  : { link: '<https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=3>; rel="next"' }
-          }
-        , { response: [] }
-      ]
-    , server
-
-  server = ghutils.makeServer(testData)
-    .on('ready', function () {
-      ghissues.listComments(xtend(auth), org, repo, num, ghutils.verifyData(t, testData[0].response.concat(testData[1].response)))
+  const server = await createMockServer({ response: [] })
+  try {
+    const results = await ghissues.list(auth, 'testorg', 'testrepo', {
+      _apiUrl: server.baseUrl
     })
-    .on('request', ghutils.verifyRequest(t, auth))
-    .on('get', ghutils.verifyUrl(t, [
-        'https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=1'
-      , 'https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=2'
-      , 'https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=3'
-    ]))
-    .on('close'  , ghutils.verifyClose(t))
+    assert.deepStrictEqual(results, [])
+  } finally {
+    await server.close()
+  }
 })
 
+test('auth header is correctly set', async () => {
+  const auth = { token: 'my-secret-token' }
+  const testData = [{ id: 1 }]
 
-test('test list no issue comments', function (t) {
-  t.plan(7)
-
-  var auth     = { user: 'authuser', token: 'authtoken' }
-    , org      = 'testorg'
-    , repo     = 'testrepo'
-    , num      = 1
-    , testData = [ [] ]
-    , server
-
-  server = ghutils.makeServer(testData)
-    .on('ready', function () {
-      ghissues.listComments(xtend(auth), org, repo, num, ghutils.verifyData(t, []))
+  const server = await createMockServer({ response: testData })
+  try {
+    await ghissues.list(auth, 'testorg', 'testrepo', {
+      _apiUrl: server.baseUrl
     })
-    .on('request', ghutils.verifyRequest(t, auth))
-    .on('get', ghutils.verifyUrl(t, [
-        'https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments?page=1'
-    ]))
-    .on('close'  , ghutils.verifyClose(t))
-})
-
-
-test('test create new comment', function (t) {
-  t.plan(9)
-
-  var auth     = { user: 'authuser', token: 'authtoken' }
-    , org      = 'testorg'
-    , repo     = 'testrepo'
-    , testData = 'comment body'
-    , num      = 303
-    , resp     = 'herpderp'
-    , server
-
-  server = ghutils.makeServer(resp)
-    .on('ready', function () {
-      ghissues.createComment(xtend(auth), org, repo, num, testData, ghutils.verifyData(t, resp))
-    })
-    .on('request', ghutils.verifyRequest(t, auth))
-    .on('request', function (req) {
-      req.pipe(bl(function (err, data) {
-        t.notOk(err, 'no error')
-        t.deepEqual(JSON.parse(data.toString()), {body:testData}, 'got expected post data')
-      }))
-    })
-    .on('post', ghutils.verifyUrl(t, [
-        'https://api.github.com/repos/testorg/testrepo/issues/' + num + '/comments'
-    ]))
-    .on('close'  , ghutils.verifyClose(t))
+    assert.strictEqual(server.requests[0].headers.authorization, 'Bearer my-secret-token')
+    assert.strictEqual(server.requests[0].headers.accept, 'application/vnd.github+json')
+  } finally {
+    await server.close()
+  }
 })
