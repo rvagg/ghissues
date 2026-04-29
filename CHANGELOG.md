@@ -1,3 +1,9 @@
+## [2.0.2](https://github.com/rvagg/ghissues/compare/v2.0.1...v2.0.2) (2026-04-29)
+
+### Trivial Changes
+
+* **deps:** bump actions/setup-node from 6.3.0 to 6.4.0 ([#8](https://github.com/rvagg/ghissues/issues/8)) ([709ce8d](https://github.com/rvagg/ghissues/commit/709ce8d654b8e19e6e564f96f3a02e58b98cf25e))
+
 ## [2.0.1](https://github.com/rvagg/ghissues/compare/v2.0.0...v2.0.1) (2026-04-28)
 
 ### Trivial Changes
