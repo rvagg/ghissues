@@ -1,3 +1,9 @@
+## [2.0.4](https://github.com/rvagg/ghissues/compare/v2.0.3...v2.0.4) (2026-06-22)
+
+### Trivial Changes
+
+* **deps:** bump actions/checkout from 6.0.2 to 6.0.3 ([#10](https://github.com/rvagg/ghissues/issues/10)) ([fb68e40](https://github.com/rvagg/ghissues/commit/fb68e40cc2acb397f46684a778a8c49eb19780f0))
+
 ## [2.0.3](https://github.com/rvagg/ghissues/compare/v2.0.2...v2.0.3) (2026-06-04)
 
 ### Trivial Changes
