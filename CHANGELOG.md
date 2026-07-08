@@ -1,3 +1,5 @@
+## [2.0.6](https://github.com/rvagg/ghissues/compare/v2.0.5...v2.0.6) (2026-07-08)
+
 ## [2.0.5](https://github.com/rvagg/ghissues/compare/v2.0.4...v2.0.5) (2026-06-24)
 
 ### Trivial Changes
