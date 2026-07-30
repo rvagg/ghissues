@@ -1,3 +1,9 @@
+## [2.0.9](https://github.com/rvagg/ghissues/compare/v2.0.8...v2.0.9) (2026-07-30)
+
+### Trivial Changes
+
+* downgrade broken changelog maker, backfill entries ([#18](https://github.com/rvagg/ghissues/issues/18)) ([05369e6](https://github.com/rvagg/ghissues/commit/05369e64d09eaa7440cace833b798007d5f72c89))
+
 ## [2.0.8](https://github.com/rvagg/ghissues/compare/v2.0.7...v2.0.8) (2026-07-29)
 
 ### Trivial Changes
