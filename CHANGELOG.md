@@ -1,8 +1,20 @@
 ## [2.0.8](https://github.com/rvagg/ghissues/compare/v2.0.7...v2.0.8) (2026-07-29)
 
+### Trivial Changes
+
+* **deps:** bump the github-actions-minor-patch group with 2 updates ([#16](https://github.com/rvagg/ghissues/issues/16)) ([e977c3c](https://github.com/rvagg/ghissues/commit/e977c3c94aff74d029e1f37a0a42ea6f7bfbe63b))
+
 ## [2.0.7](https://github.com/rvagg/ghissues/compare/v2.0.6...v2.0.7) (2026-07-22)
 
+### Trivial Changes
+
+* **ci:** slow down dependabot, add depsound, pin action hashes ([#15](https://github.com/rvagg/ghissues/issues/15)) ([bfa3e37](https://github.com/rvagg/ghissues/commit/bfa3e37d100a87219f7e9aedf37499a3107ed5e5))
+
 ## [2.0.6](https://github.com/rvagg/ghissues/compare/v2.0.5...v2.0.6) (2026-07-08)
+
+### Trivial Changes
+
+* **deps-dev:** bump conventional-changelog-conventionalcommits from 9.3.1 to 10.2.0 ([2ed71e9](https://github.com/rvagg/ghissues/commit/2ed71e94015336b8819e02be8cae4a898a41f39a))
 
 ## [2.0.5](https://github.com/rvagg/ghissues/compare/v2.0.4...v2.0.5) (2026-06-24)
 
