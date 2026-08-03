@@ -1,3 +1,9 @@
+## [2.0.10](https://github.com/rvagg/ghissues/compare/v2.0.9...v2.0.10) (2026-08-03)
+
+### Trivial Changes
+
+* **deps-dev:** bump @semantic-release/changelog from 6.0.3 to 7.0.0 ([#20](https://github.com/rvagg/ghissues/issues/20)) ([d98338c](https://github.com/rvagg/ghissues/commit/d98338ce04875bc8aa4be0e7be6cf62653ee2b08))
+
 ## [2.0.9](https://github.com/rvagg/ghissues/compare/v2.0.8...v2.0.9) (2026-07-30)
 
 ### Trivial Changes
