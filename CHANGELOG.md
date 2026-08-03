@@ -1,3 +1,9 @@
+## [2.0.11](https://github.com/rvagg/ghissues/compare/v2.0.10...v2.0.11) (2026-08-03)
+
+### Trivial Changes
+
+* **deps-dev:** bump @semantic-release/git from 10.0.1 to 11.0.1 ([#21](https://github.com/rvagg/ghissues/issues/21)) ([63ded05](https://github.com/rvagg/ghissues/commit/63ded05ad1e426a2f4a53dfbba353a1e717074b2))
+
 ## [2.0.10](https://github.com/rvagg/ghissues/compare/v2.0.9...v2.0.10) (2026-08-03)
 
 ### Trivial Changes
